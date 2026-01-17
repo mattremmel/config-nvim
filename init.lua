@@ -1,19 +1,23 @@
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
-  local lazyrepo = "https://github.com/folke/lazy.nvim.git"
-  local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
-  if vim.v.shell_error ~= 0 then
-    vim.api.nvim_echo({
-      { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
-      { out, "WarningMsg" },
-      { "\nPress any key to exit..." },
-    }, true, {})
-    vim.fn.getchar()
-    os.exit(1)
-  end
+	local lazyrepo = "https://github.com/folke/lazy.nvim.git"
+	local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+	if vim.v.shell_error ~= 0 then
+		vim.api.nvim_echo({
+			{ "Failed to clone lazy.nvim:\n", "ErrorMsg" },
+			{ out, "WarningMsg" },
+			{ "\nPress any key to exit..." },
+		}, true, {})
+		vim.fn.getchar()
+		os.exit(1)
+	end
 end
 vim.opt.rtp:prepend(lazypath)
+
+-- Add mason registry to path
+local is_windows = vim.fn.has("win32") ~= 0
+vim.env.PATH = vim.fn.stdpath("data") .. "/mason/bin" .. (is_windows and ";" or ":") .. vim.env.PATH
 
 -- Make sure to setup `mapleader` and `maplocalleader` before
 -- loading lazy.nvim so that mappings are correct.
@@ -23,68 +27,68 @@ vim.g.maplocalleader = "\\"
 
 -- Setup lazy.nvim
 require("lazy").setup({
-  spec = {
-    -- Colorscheme
-    {
-      "EdenEast/nightfox.nvim",
-      lazy = false,
-      opts = {
-        palettes = {
-          nordfox = {
-            bg0 = "#141414",
-            bg1 = "#1f1f1f",
-          },
-        },
-      },
-    },
-    -- Tmux Navigator
-    {
-    "christoomey/vim-tmux-navigator",
-    cmd = {
-        "TmuxNavigateLeft",
-        "TmuxNavigateDown",
-        "TmuxNavigateUp",
-        "TmuxNavigateRight",
-        "TmuxNavigatePrevious",
-    },
-    keys = {
-        { "<C-h>", "<cmd>TmuxNavigateLeft<cr>", desc = "Move to left window" },
-        { "<C-j>", "<cmd>TmuxNavigateDown<cr>", desc = "Move to bottom window" },
-        { "<C-k>", "<cmd>TmuxNavigateUp<cr>", desc = "Move to top window" },
-        { "<C-l>", "<cmd>TmuxNavigateRight<cr>", desc = "Move to right window" },
-    },
-},
-    -- Autopairs
-    {
-      "windwp/nvim-autopairs",
-      event = { "BufReadPre", "BufNewFile" },
-      opts = {
-        fast_wrap = {},
-        disable_filetypes = { "TelescopePrompt", "vim" },
-      },
-    },
-    -- Snacks
-    {
-    "folke/snacks.nvim",
-    priority = 1000,
-    lazy = false,
-    opts = {
-        bigfile = { enabled = true },
-        dashboard = { enabled = true },
-        input = { enabled = true },
-        notifier = {
-            enabled = true,
-            timeout = 3000,
-        },
-        statuscolumn = { enabled = true },
-        quickfile = { enabled = true },
-        words = { enabled = true },
-        styles = {
-            zen = {
-                width = 180,
-            },
-        },
-    },
+	spec = {
+		-- Colorscheme
+		{
+			"EdenEast/nightfox.nvim",
+			lazy = false,
+			opts = {
+				palettes = {
+					nordfox = {
+						bg0 = "#141414",
+						bg1 = "#1f1f1f",
+					},
+				},
+			},
+		},
+		-- Tmux Navigator
+		{
+			"christoomey/vim-tmux-navigator",
+			cmd = {
+				"TmuxNavigateLeft",
+				"TmuxNavigateDown",
+				"TmuxNavigateUp",
+				"TmuxNavigateRight",
+				"TmuxNavigatePrevious",
+			},
+			keys = {
+				{ "<C-h>", "<cmd>TmuxNavigateLeft<cr>", desc = "Move to left window" },
+				{ "<C-j>", "<cmd>TmuxNavigateDown<cr>", desc = "Move to bottom window" },
+				{ "<C-k>", "<cmd>TmuxNavigateUp<cr>", desc = "Move to top window" },
+				{ "<C-l>", "<cmd>TmuxNavigateRight<cr>", desc = "Move to right window" },
+			},
+		},
+		-- Autopairs
+		{
+			"windwp/nvim-autopairs",
+			event = { "BufReadPre", "BufNewFile" },
+			opts = {
+				fast_wrap = {},
+				disable_filetypes = { "TelescopePrompt", "vim" },
+			},
+		},
+		-- Snacks
+		{
+			"folke/snacks.nvim",
+			priority = 1000,
+			lazy = false,
+			opts = {
+				bigfile = { enabled = true },
+				dashboard = { enabled = true },
+				input = { enabled = true },
+				notifier = {
+					enabled = true,
+					timeout = 3000,
+				},
+				statuscolumn = { enabled = true },
+				quickfile = { enabled = true },
+				words = { enabled = true },
+				styles = {
+					zen = {
+						width = 180,
+					},
+				},
+			},
         -- stylua: ignore
     keys = {
         { "<leader>z",  function() Snacks.zen() end, desc = "Toggle Zen Mode" },
@@ -102,167 +106,168 @@ require("lazy").setup({
         { "]]",         function() Snacks.words.jump(vim.v.count1) end, desc = "Next Reference", mode = { "n", "t" } },
         { "[[",         function() Snacks.words.jump(-vim.v.count1) end, desc = "Prev Reference", mode = { "n", "t" } },
     }
-},
--- Comment
-{
-    "numToStr/Comment.nvim",
-    event = { "BufReadPre", "BufNewFile" },
-    opts = {},
-},
-    -- Bufferline,
-    {
-      "akinsho/bufferline.nvim",
-      dependencies = {
-        "nvim-tree/nvim-web-devicons",
-      },
-      event = "BufAdd",
-      keys = {
-        { "L", "<cmd>BufferLineCycleNext<cr>", desc = "Cycle to Next Buffer" },
-        { "H", "<cmd>BufferLineCyclePrev<cr>", desc = "Cycle to Previous Buffer" },
-        { ">b", "<cmd>BufferLineMoveNext<cr>", desc = "Re-order Current Buffer to Next Position" },
-        { "<b", "<cmd>BufferLineMovePrev<cr>", desc = "Re-order Current Buffer To Previous Position" },
-      },
-      opts = {
-        options = {
-          offsets = {
-            {
-              filetype = "NvimTree",
-              text = "File Explorer",
-              highlight = "PanelHeading",
-            },
-          },
-        },
-      },
-    },
-    -- Lualine
-    {
-      "nvim-lualine/lualine.nvim",
-      dependencies = {
-        "nvim-tree/nvim-web-devicons",
-      },
-      event = "BufWinEnter",
-      opts = {
-        options = {
-          component_separators = "|",
-          section_separators = { left = "", right = "" },
-        },
-      },
-    },
-    -- Oil
-    {
-    "stevearc/oil.nvim",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-    event = "VeryLazy",
-    keys = {
-        { "<leader>e", "<cmd>Oil<cr>", { desc = "Open Oil File Manager" } },
-    },
-    opts = {},
-},
-    -- Treesitter
-    {
-      "nvim-treesitter/nvim-treesitter",
-      version = false,
-      build = ":TSUpdate",
-      event = { "BufReadPre", "BufNewFile" },
-      cmd = { "TSUpdate", "TSModuleInfo" },
-      opts = {
-        ensure_installed = {
-          "asm",
-          "bash",
-          "c",
-          "c_sharp",
-          "capnp",
-          "cmake",
-          "cpp",
-          "css",
-          "diff",
-          "disassembly",
-          "dockerfile",
-          "dot",
-          "gitattributes",
-          "gitcommit",
-          "gitignore",
-          "git_config",
-          "git_rebase",
-          "go",
-          "graphql",
-          "haskell",
-          "hcl",
-          "html",
-          "http",
-          "ini",
-          "java",
-          "javascript",
-          "json",
-          "json5",
-          "jq",
-          "just",
-          "kotlin",
-          "latex",
-          "linkerscript",
-          "llvm",
-          "lua",
-          "make",
-          "markdown",
-          "markdown_inline",
-          "nasm",
-          "ninja",
-          "nix",
-          "objc",
-          "objdump",
-          "perl",
-          "php",
-          "proto",
-          "python",
-          "regex",
-          "ron",
-          "ruby",
-          "rust",
-          "scala",
-          "scss",
-          "sql",
-          "ssh_config",
-          "svelte",
-          "swift",
-          "terraform",
-          "tmux",
-          "toml",
-          "tsx",
-          "typescript",
-          "typst",
-          "vim",
-          "vimdoc",
-          "vue",
-          "xml",
-          "yaml",
-          "zig",
-        },
-        auto_install = true,
-        highlight = {
-          enable = true,
-          additional_vim_regex_highlighting = false,
-        },
-        incremental_selection = { enable = true },
-        indent = { enable = false },
-      },
-      main = "nvim-treesitter.config",
-    },
-    -- Telescope
-{
+,
+		},
+		-- Comment
+		{
+			"numToStr/Comment.nvim",
+			event = { "BufReadPre", "BufNewFile" },
+			opts = {},
+		},
+		-- Bufferline,
+		{
+			"akinsho/bufferline.nvim",
+			dependencies = {
+				"nvim-tree/nvim-web-devicons",
+			},
+			event = "BufAdd",
+			keys = {
+				{ "L", "<cmd>BufferLineCycleNext<cr>", desc = "Cycle to Next Buffer" },
+				{ "H", "<cmd>BufferLineCyclePrev<cr>", desc = "Cycle to Previous Buffer" },
+				{ ">b", "<cmd>BufferLineMoveNext<cr>", desc = "Re-order Current Buffer to Next Position" },
+				{ "<b", "<cmd>BufferLineMovePrev<cr>", desc = "Re-order Current Buffer To Previous Position" },
+			},
+			opts = {
+				options = {
+					offsets = {
+						{
+							filetype = "NvimTree",
+							text = "File Explorer",
+							highlight = "PanelHeading",
+						},
+					},
+				},
+			},
+		},
+		-- Lualine
+		{
+			"nvim-lualine/lualine.nvim",
+			dependencies = {
+				"nvim-tree/nvim-web-devicons",
+			},
+			event = "BufWinEnter",
+			opts = {
+				options = {
+					component_separators = "|",
+					section_separators = { left = "", right = "" },
+				},
+			},
+		},
+		-- Oil
+		{
+			"stevearc/oil.nvim",
+			dependencies = { "nvim-tree/nvim-web-devicons" },
+			event = "VeryLazy",
+			keys = {
+				{ "<leader>e", "<cmd>Oil<cr>", { desc = "Open Oil File Manager" } },
+			},
+			opts = {},
+		},
+		-- Treesitter
+		{
+			"nvim-treesitter/nvim-treesitter",
+			version = false,
+			build = ":TSUpdate",
+			event = { "BufReadPre", "BufNewFile" },
+			cmd = { "TSUpdate", "TSModuleInfo" },
+			opts = {
+				ensure_installed = {
+					"asm",
+					"bash",
+					"c",
+					"c_sharp",
+					"capnp",
+					"cmake",
+					"cpp",
+					"css",
+					"diff",
+					"disassembly",
+					"dockerfile",
+					"dot",
+					"gitattributes",
+					"gitcommit",
+					"gitignore",
+					"git_config",
+					"git_rebase",
+					"go",
+					"graphql",
+					"haskell",
+					"hcl",
+					"html",
+					"http",
+					"ini",
+					"java",
+					"javascript",
+					"json",
+					"json5",
+					"jq",
+					"just",
+					"kotlin",
+					"latex",
+					"linkerscript",
+					"llvm",
+					"lua",
+					"make",
+					"markdown",
+					"markdown_inline",
+					"nasm",
+					"ninja",
+					"nix",
+					"objc",
+					"objdump",
+					"perl",
+					"php",
+					"proto",
+					"python",
+					"regex",
+					"ron",
+					"ruby",
+					"rust",
+					"scala",
+					"scss",
+					"sql",
+					"ssh_config",
+					"svelte",
+					"swift",
+					"terraform",
+					"tmux",
+					"toml",
+					"tsx",
+					"typescript",
+					"typst",
+					"vim",
+					"vimdoc",
+					"vue",
+					"xml",
+					"yaml",
+					"zig",
+				},
+				auto_install = true,
+				highlight = {
+					enable = true,
+					additional_vim_regex_highlighting = false,
+				},
+				incremental_selection = { enable = true },
+				indent = { enable = false },
+			},
+			main = "nvim-treesitter.config",
+		},
+		-- Telescope
+		{
 
-    {
-        "nvim-telescope/telescope-fzf-native.nvim",
-        lazy = true,
-        build = "make",
-    },
+			{
+				"nvim-telescope/telescope-fzf-native.nvim",
+				lazy = true,
+				build = "make",
+			},
 
-    {
-        "nvim-telescope/telescope.nvim",
-        dependencies = {
-            "nvim-lua/plenary.nvim",
-            "nvim-telescope/telescope-fzf-native.nvim",
-        },
-        cmd = "Telescope",
+			{
+				"nvim-telescope/telescope.nvim",
+				dependencies = {
+					"nvim-lua/plenary.nvim",
+					"nvim-telescope/telescope-fzf-native.nvim",
+				},
+				cmd = "Telescope",
         -- stylua: ignore
         keys = {
             { "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "Find Files" },
@@ -281,90 +286,90 @@ require("lazy").setup({
             { "<leader>fgc", "<cmd>Telescope git_commits<cr>", desc = "Find Git Commits" },
             { "<leader>fgs", "<cmd>Telescope git_status<cr>", desc = "Find Git Status" },
         },
-        opts = {
-            defaults = {
-                prompt_prefix = " ",
-                selection_caret = "❯ ",
-                path_display = { "truncate" },
-                sorting_strategy = "ascending",
-                layout_config = {
-                    horizontal = {
-                        prompt_position = "top",
-                        preview_width = 0.55,
-                        results_width = 0.8,
-                    },
-                    vertical = {
-                        mirror = false,
-                    },
-                    width = 0.87,
-                    height = 0.80,
-                    preview_cutoff = 120,
-                },
+				opts = {
+					defaults = {
+						prompt_prefix = " ",
+						selection_caret = "❯ ",
+						path_display = { "truncate" },
+						sorting_strategy = "ascending",
+						layout_config = {
+							horizontal = {
+								prompt_position = "top",
+								preview_width = 0.55,
+								results_width = 0.8,
+							},
+							vertical = {
+								mirror = false,
+							},
+							width = 0.87,
+							height = 0.80,
+							preview_cutoff = 120,
+						},
 
-                mappings = {
-                    i = {
-                        ["<C-n>"] = function(...)
-                            return require("telescope.actions").cycle_history_next(...)
-                        end,
-                        ["<C-p>"] = function(...)
-                            return require("telescope.actions").cycle_history_prev(...)
-                        end,
-                        ["<C-j>"] = function(...)
-                            return require("telescope.actions").move_selection_next(...)
-                        end,
-                        ["<C-k>"] = function(...)
-                            return require("telescope.actions").move_selection_previous(...)
-                        end,
-                        ["<C-t>"] = function(bufnr)
-                            return require("trouble.sources.telescope").open(bufnr)
-                        end,
-                        ["<C-T>"] = function(bufnr)
-                            return require("trouble.sources.telescope").add(bufnr)
-                        end,
-                    },
-                    n = {
-                        ["q"] = function(...)
-                            require("telescope.actions").close(...)
-                        end,
-                        ["<C-t>"] = function(bufnr)
-                            return require("trouble.sources.telescope").open(bufnr)
-                        end,
-                        ["<C-T>"] = function(bufnr)
-                            return require("trouble.sources.telescope").add(bufnr)
-                        end,
-                    },
-                },
-            },
-            pickers = {
-                find_files = {
-                    find_command = {
-                        "rg",
-                        "--no-config",
-                        "--follow",
-                        "--files",
-                        "--sortr=modified",
-                    },
-                },
-            },
-            extensions = {
-                fzf = {},
-            },
-        },
-        config = function(_, opts)
-            -- Setup
-            local telescope = require("telescope")
-            telescope.setup(opts)
+						mappings = {
+							i = {
+								["<C-n>"] = function(...)
+									return require("telescope.actions").cycle_history_next(...)
+								end,
+								["<C-p>"] = function(...)
+									return require("telescope.actions").cycle_history_prev(...)
+								end,
+								["<C-j>"] = function(...)
+									return require("telescope.actions").move_selection_next(...)
+								end,
+								["<C-k>"] = function(...)
+									return require("telescope.actions").move_selection_previous(...)
+								end,
+								["<C-t>"] = function(bufnr)
+									return require("trouble.sources.telescope").open(bufnr)
+								end,
+								["<C-T>"] = function(bufnr)
+									return require("trouble.sources.telescope").add(bufnr)
+								end,
+							},
+							n = {
+								["q"] = function(...)
+									require("telescope.actions").close(...)
+								end,
+								["<C-t>"] = function(bufnr)
+									return require("trouble.sources.telescope").open(bufnr)
+								end,
+								["<C-T>"] = function(bufnr)
+									return require("trouble.sources.telescope").add(bufnr)
+								end,
+							},
+						},
+					},
+					pickers = {
+						find_files = {
+							find_command = {
+								"rg",
+								"--no-config",
+								"--follow",
+								"--files",
+								"--sortr=modified",
+							},
+						},
+					},
+					extensions = {
+						fzf = {},
+					},
+				},
+				config = function(_, opts)
+					-- Setup
+					local telescope = require("telescope")
+					telescope.setup(opts)
 
-            -- Load extension
-            telescope.load_extension("fzf")
-        end,
-    },
-},
--- Trouble
-{
-    "folke/trouble.nvim",
-    dependencies = "nvim-tree/nvim-web-devicons",
-    cmd = { "Trouble" },
+					-- Load extension
+					telescope.load_extension("fzf")
+				end,
+			},
+		},
+		-- Trouble
+		{
+			"folke/trouble.nvim",
+			dependencies = "nvim-tree/nvim-web-devicons",
+			cmd = { "Trouble" },
     -- stylua: ignore
     keys = {
         { "<leader>xx", "<cmd>Trouble diagnostics toggle<cr>", desc = "Workspace Diagnostics (Trouble)" },
@@ -374,88 +379,352 @@ require("lazy").setup({
         { "<leader>xr", "<cmd>Trouble lsp toggle focus=false win.position=right<cr>", desc = "LSP References (Trouble)", },
         { "<leader>xs", "<cmd>Trouble symbols toggle focus=false<cr>", desc = "Symbols (Trouble)", },
     },
-    opts = {
-        warn_no_results = false,
-        open_no_results = true,
-        focus = true,
-    },
-},
--- Todo Comments
-{
-    "folke/todo-comments.nvim",
-    dependencies = {
-        "nvim-lua/plenary.nvim",
-    },
-    event = { "BufReadPre", "BufNewFile" },
-    cmd = { "TodoTelescope", "TodoTrouble" },
-    keys = {
-        { "<leader>ft", "<cmd>TodoTelescope<cr>", desc = "Find TODO Comments" },
-        {
-            "<leader>xt",
-            "<cmd>Trouble todo toggle focus=true<cr>",
-            desc = "TODO Comments (Trouble)",
-        },
-        {
-            "]t",
-            function()
-                require("todo-comments").jump_next()
-            end,
-            desc = "Next TODO Comment",
-        },
-        {
-            "[t",
-            function()
-                require("todo-comments").jump_prev()
-            end,
-            desc = "Previous TODO Comment",
-        },
-    },
-    opts = {},
-},
-{
-    "lewis6991/gitsigns.nvim",
-    event = { "BufReadPre", "BufNewFile" },
-    cmd = { "Gitsigns" },
-    keys = {
-        { "<leader>gD", "<cmd>Gitsigns toggle_deleted<cr>", desc = "Toggle Deleted" },
-        {
-            "<leader>gn",
-            function()
-                if vim.wo.diff then
-                    return "]c"
-                end
-                vim.schedule(function()
-                    require("gitsigns").next_hunk()
-                end)
-                return "<Ignore>"
-            end,
-            expr = true,
-            desc = "Next Hunk",
-        },
-        {
-            "<leader>gp",
-            function()
-                if vim.wo.diff then
-                    return "[c"
-                end
-                vim.schedule(function()
-                    require("gitsigns").prev_hunk()
-                end)
-                return "<Ignore>"
-            end,
-            expr = true,
-            desc = "Previous Hunk",
-        },
-        { "ih", ":<C-U>Gitsigns select_hunk<cr>", mode = { "o", "x" }, desc = "Select Hunk" },
-    },
-    opts = {},
-},
-  },
-  -- Configure any other settings here. See the documentation for more details.
-  -- colorscheme that will be used when installing plugins.
-  install = { colorscheme = { "habamax" } },
-  -- automatically check for plugin updates
-  checker = { enabled = true },
+			opts = {
+				warn_no_results = false,
+				open_no_results = true,
+				focus = true,
+			},
+		},
+		-- Todo Comments
+		{
+			"folke/todo-comments.nvim",
+			dependencies = {
+				"nvim-lua/plenary.nvim",
+			},
+			event = { "BufReadPre", "BufNewFile" },
+			cmd = { "TodoTelescope", "TodoTrouble" },
+			keys = {
+				{ "<leader>ft", "<cmd>TodoTelescope<cr>", desc = "Find TODO Comments" },
+				{
+					"<leader>xt",
+					"<cmd>Trouble todo toggle focus=true<cr>",
+					desc = "TODO Comments (Trouble)",
+				},
+				{
+					"]t",
+					function()
+						require("todo-comments").jump_next()
+					end,
+					desc = "Next TODO Comment",
+				},
+				{
+					"[t",
+					function()
+						require("todo-comments").jump_prev()
+					end,
+					desc = "Previous TODO Comment",
+				},
+			},
+			opts = {},
+		},
+		-- Mason (LSP/Tool installer)
+		{
+			"williamboman/mason.nvim",
+			cmd = { "Mason", "MasonInstall", "MasonInstallAll", "MasonUninstall", "MasonUninstallAll", "MasonLog" },
+			opts = {
+				ensure_installed = {
+					-- LSP's
+					"basedpyright",
+					"bash-language-server",
+					"css-lsp",
+					"cucumber-language-server",
+					"docker-compose-language-service",
+					"dockerfile-language-server",
+					"html-lsp",
+					"graphql-language-service-cli",
+					"json-lsp",
+					"lua-language-server",
+					"marksman",
+					"omnisharp",
+					"rust-analyzer",
+					"svelte-language-server",
+					"tailwindcss-language-server",
+					"tinymist",
+					"typescript-language-server",
+
+					-- Linters
+					"eslint-lsp",
+					"ruff",
+
+					-- Formatters
+					"black",
+					"isort",
+					"prettierd",
+					"stylua",
+
+					-- Debuggers
+					"codelldb",
+				},
+				automatic_installation = true,
+			},
+			config = function(_, opts)
+				require("mason").setup(opts)
+				vim.api.nvim_create_user_command("MasonInstallAll", function()
+					if opts.ensure_installed and #opts.ensure_installed > 0 then
+						vim.cmd("MasonInstall " .. table.concat(opts.ensure_installed, " "))
+					end
+				end, {})
+			end,
+		},
+		-- LSP Config
+		{
+			"neovim/nvim-lspconfig",
+			event = { "BufReadPre", "BufNewFile" },
+			config = function()
+				-- Lua LSP config
+				vim.lsp.config("lua_ls", {
+					settings = {
+						Lua = {
+							diagnostics = {
+								globals = { "vim", "Snacks" },
+							},
+							workspace = {
+								library = {
+									vim.fn.expand("$VIMRUNTIME/lua"),
+									vim.fn.expand("$VIMRUNTIME/lua/vim/lsp"),
+									vim.fn.stdpath("data") .. "/lazy/lazy.nvim/lua/lazy",
+								},
+								maxPreload = 100000,
+								preloadFileSize = 10000,
+							},
+						},
+					},
+				})
+
+				-- Tailwind CSS config
+				vim.lsp.config("tailwindcss", {
+					root_markers = { "package.json", "tsconfig.json", ".git" },
+					settings = {
+						tailwindCSS = {
+							experimental = {
+								classRegex = {
+									{ "cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]" },
+									{ "cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)" },
+								},
+							},
+						},
+					},
+				})
+
+				-- Cucumber config
+				vim.lsp.config("cucumber_language_server", {
+					settings = {
+						cucumber = {
+							features = { "**/*.feature" },
+							glue = { "**/features/step_definitions/*.ts" },
+						},
+					},
+				})
+
+				-- Rust Analyzer config
+				vim.lsp.config("rust_analyzer", {
+					settings = {
+						["rust-analyzer"] = {
+							check = {
+								command = "clippy",
+							},
+						},
+					},
+				})
+
+				-- Enable language servers
+				vim.lsp.enable("lua_ls") -- Lua
+				vim.lsp.enable("marksman") -- Markdown
+				vim.lsp.enable("jsonls") -- JSON
+				vim.lsp.enable("bashls") -- Bash
+				vim.lsp.enable("docker_compose_language_service") -- Docker Compose
+				vim.lsp.enable("dockerls") -- Dockerfile
+				vim.lsp.enable("cssls") -- CSS
+				vim.lsp.enable("html") -- HTML
+				vim.lsp.enable("ts_ls") -- TypeScript/JavaScript
+				vim.lsp.enable("tailwindcss") -- Tailwind CSS
+				vim.lsp.enable("eslint") -- ESLint
+				vim.lsp.enable("svelte") -- Svelte
+				vim.lsp.enable("cucumber_language_server") -- Cucumber
+				vim.lsp.enable("graphql") -- GraphQL
+				vim.lsp.enable("basedpyright") -- Python
+				vim.lsp.enable("ruff") -- Python linter
+				vim.lsp.enable("rust_analyzer") -- Rust
+				vim.lsp.enable("tinymist") -- Typst
+
+				-- LSP keymaps (set when LSP attaches to buffer)
+				vim.api.nvim_create_autocmd("LspAttach", {
+					callback = function(args)
+						local function opts(desc)
+							return { buffer = args.buf, desc = desc }
+						end
+
+						-- Navigation (using Telescope)
+						vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts("Find Declaration"))
+						vim.keymap.set("n", "gd", "<cmd>Telescope lsp_definitions<cr>", opts("Find Definition"))
+						vim.keymap.set("n", "gi", "<cmd>Telescope lsp_implementations<cr>", opts("Find Implementation"))
+						vim.keymap.set("n", "gr", "<cmd>Telescope lsp_references<cr>", opts("Find Reference"))
+						vim.keymap.set(
+							"n",
+							"gt",
+							"<cmd>Telescope lsp_type_definitions<cr>",
+							opts("Find Type Definition")
+						)
+						vim.keymap.set("n", "gI", "<cmd>Telescope lsp_incoming_calls<cr>", opts("Find Incoming Call"))
+						vim.keymap.set("n", "gO", "<cmd>Telescope lsp_outgoing_calls<cr>", opts("Find Outgoing Call"))
+						vim.keymap.set(
+							"n",
+							"<leader>fs",
+							"<cmd>Telescope lsp_document_symbols<cr>",
+							opts("Find Document Symbol")
+						)
+						vim.keymap.set(
+							"n",
+							"<leader>fS",
+							"<cmd>Telescope lsp_workspace_symbols<cr>",
+							opts("Find Workspace Symbol")
+						)
+
+						-- Hover & Help
+						vim.keymap.set("n", "K", vim.lsp.buf.hover, opts("Show Hover"))
+						vim.keymap.set("n", "<leader>ls", vim.lsp.buf.signature_help, opts("Show Signature Help"))
+
+						-- Code actions & Refactoring
+						vim.keymap.set({ "n", "v" }, "<leader>la", vim.lsp.buf.code_action, opts("Code Action"))
+						vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts("Rename"))
+
+						-- Workspace folders
+						vim.keymap.set(
+							"n",
+							"<leader>lwa",
+							vim.lsp.buf.add_workspace_folder,
+							opts("Add Workspace Folder")
+						)
+						vim.keymap.set(
+							"n",
+							"<leader>lwr",
+							vim.lsp.buf.remove_workspace_folder,
+							opts("Remove Workspace Folder")
+						)
+						vim.keymap.set("n", "<leader>lwl", function()
+							print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+						end, opts("List Workspace Folders"))
+
+						-- Diagnostics
+						vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts("Previous Diagnostic"))
+						vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts("Next Diagnostic"))
+					end,
+				})
+			end,
+		},
+		-- Conform (Formatter)
+		{
+			"stevearc/conform.nvim",
+			event = { "BufReadPre", "BufNewFile" },
+			keys = {
+				{
+					"<leader>rf",
+					function()
+						require("conform").format({ lsp_fallback = true })
+					end,
+					mode = "n",
+					desc = "Format Buffer",
+				},
+			},
+			opts = {
+				formatters_by_ft = {
+					lua = { "stylua" },
+					python = { "isort", "black" },
+					rust = { "rustfmt", lsp_format = "fallback" },
+					javascript = { "prettierd" },
+					typescript = { "prettierd" },
+					javascriptreact = { "prettierd" },
+					typescriptreact = { "prettierd" },
+					vue = { "prettierd" },
+					css = { "prettierd" },
+					scss = { "prettierd" },
+					less = { "prettierd" },
+					html = { "prettierd" },
+					json = { "prettierd" },
+					jsonc = { "prettierd" },
+					yaml = { "prettierd" },
+					markdown = { "prettierd" },
+					["markdown.mdx"] = { "prettierd" },
+					graphql = { "prettierd" },
+					handlebars = { "prettierd" },
+				},
+				format_on_save = function(bufnr)
+					if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
+						return
+					else
+						return {
+							timeout_ms = 500,
+							lsp_format = "fallback",
+						}
+					end
+				end,
+			},
+			config = function(_, opts)
+				require("conform").setup(opts)
+
+				vim.api.nvim_create_user_command("FormatDisable", function(args)
+					if args.bang then
+						vim.g.disable_autoformat = true
+					else
+						vim.b.disable_autoformat = true
+					end
+				end, {
+					desc = "Disable autoformat-on-save",
+					bang = true,
+				})
+
+				vim.api.nvim_create_user_command("FormatEnable", function()
+					vim.b.disable_autoformat = false
+					vim.g.disable_autoformat = false
+				end, {
+					desc = "Re-enable autoformat-on-save",
+				})
+			end,
+		},
+		{
+			"lewis6991/gitsigns.nvim",
+			event = { "BufReadPre", "BufNewFile" },
+			cmd = { "Gitsigns" },
+			keys = {
+				{ "<leader>gD", "<cmd>Gitsigns toggle_deleted<cr>", desc = "Toggle Deleted" },
+				{
+					"<leader>gn",
+					function()
+						if vim.wo.diff then
+							return "]c"
+						end
+						vim.schedule(function()
+							require("gitsigns").next_hunk()
+						end)
+						return "<Ignore>"
+					end,
+					expr = true,
+					desc = "Next Hunk",
+				},
+				{
+					"<leader>gp",
+					function()
+						if vim.wo.diff then
+							return "[c"
+						end
+						vim.schedule(function()
+							require("gitsigns").prev_hunk()
+						end)
+						return "<Ignore>"
+					end,
+					expr = true,
+					desc = "Previous Hunk",
+				},
+				{ "ih", ":<C-U>Gitsigns select_hunk<cr>", mode = { "o", "x" }, desc = "Select Hunk" },
+			},
+			opts = {},
+		},
+	},
+	-- Configure any other settings here. See the documentation for more details.
+	-- colorscheme that will be used when installing plugins.
+	install = { colorscheme = { "habamax" } },
+	-- automatically check for plugin updates
+	checker = { enabled = true },
 })
 
 -- Colorscheme
@@ -618,21 +887,21 @@ vim.opt.maxmempattern = 20000
 
 -- Diagnostic signs
 vim.diagnostic.config({
-    signs = {
-        text = {
-            [vim.diagnostic.severity.ERROR] = "",
-            [vim.diagnostic.severity.WARN] = "",
-            [vim.diagnostic.severity.HINT] = "",
-            [vim.diagnostic.severity.INFO] = "",
-        },
-    },
+	signs = {
+		text = {
+			[vim.diagnostic.severity.ERROR] = "",
+			[vim.diagnostic.severity.WARN] = "",
+			[vim.diagnostic.severity.HINT] = "",
+			[vim.diagnostic.severity.INFO] = "",
+		},
+	},
 })
 
 -- Copy Full File-Path
 vim.keymap.set("n", "<leader>pa", function()
-    local path = vim.fn.expand("%:p")
-    vim.fn.setreg("+", path)
-    print("file:", path)
+	local path = vim.fn.expand("%:p")
+	vim.fn.setreg("+", path)
+	print("file:", path)
 end, { desc = "Copy full file path" })
 
 -- Basic autocommands
@@ -640,44 +909,44 @@ local augroup = vim.api.nvim_create_augroup("UserConfig", {})
 
 -- Highlight yanked text
 vim.api.nvim_create_autocmd("TextYankPost", {
-    group = augroup,
-    callback = function()
-        vim.highlight.on_yank()
-    end,
+	group = augroup,
+	callback = function()
+		vim.highlight.on_yank()
+	end,
 })
 
 -- Return to last edit position when opening files
 vim.api.nvim_create_autocmd("BufReadPost", {
-    group = augroup,
-    callback = function()
-        local mark = vim.api.nvim_buf_get_mark(0, '"')
-        local lcount = vim.api.nvim_buf_line_count(0)
-        if mark[1] > 0 and mark[1] <= lcount then
-            pcall(vim.api.nvim_win_set_cursor, 0, mark)
-        end
-    end,
+	group = augroup,
+	callback = function()
+		local mark = vim.api.nvim_buf_get_mark(0, '"')
+		local lcount = vim.api.nvim_buf_line_count(0)
+		if mark[1] > 0 and mark[1] <= lcount then
+			pcall(vim.api.nvim_win_set_cursor, 0, mark)
+		end
+	end,
 })
 
 -- Disable line numbers in terminal
 vim.api.nvim_create_autocmd("TermOpen", {
-    group = augroup,
-    callback = function()
-        vim.opt_local.number = false
-        vim.opt_local.relativenumber = false
-        vim.opt_local.signcolumn = "no"
-    end,
+	group = augroup,
+	callback = function()
+		vim.opt_local.number = false
+		vim.opt_local.relativenumber = false
+		vim.opt_local.signcolumn = "no"
+	end,
 })
 
 -- Auto-resize splits when window is resized
 vim.api.nvim_create_autocmd("VimResized", {
-    group = augroup,
-    callback = function()
-        vim.cmd("tabdo wincmd =")
-    end,
+	group = augroup,
+	callback = function()
+		vim.cmd("tabdo wincmd =")
+	end,
 })
 
 -- Create undo directory if it doesn't exist
 local undodir = vim.fn.expand("~/.vim/undodir")
 if vim.fn.isdirectory(undodir) == 0 then
-    vim.fn.mkdir(undodir, "p")
+	vim.fn.mkdir(undodir, "p")
 end
