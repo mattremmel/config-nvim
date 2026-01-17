@@ -47,6 +47,12 @@ require("lazy").setup({
         "TmuxNavigateRight",
         "TmuxNavigatePrevious",
     },
+    keys = {
+        { "<C-h>", "<cmd>TmuxNavigateLeft<cr>", desc = "Move to left window" },
+        { "<C-j>", "<cmd>TmuxNavigateDown<cr>", desc = "Move to bottom window" },
+        { "<C-k>", "<cmd>TmuxNavigateUp<cr>", desc = "Move to top window" },
+        { "<C-l>", "<cmd>TmuxNavigateRight<cr>", desc = "Move to right window" },
+    },
 },
     -- Autopairs
     {
@@ -114,7 +120,7 @@ require("lazy").setup({
         { "L", "<cmd>BufferLineCycleNext<cr>", desc = "Cycle to Next Buffer" },
         { "H", "<cmd>BufferLineCyclePrev<cr>", desc = "Cycle to Previous Buffer" },
         { ">b", "<cmd>BufferLineMoveNext<cr>", desc = "Re-order Current Buffer to Next Position" },
-        { "<b", "<cmd>BufferLineCyclePrev<cr>", desc = "Re-order Current Buffer To Previous Position" },
+        { "<b", "<cmd>BufferLineMovePrev<cr>", desc = "Re-order Current Buffer To Previous Position" },
       },
       opts = {
         options = {
@@ -146,7 +152,7 @@ require("lazy").setup({
     {
     "stevearc/oil.nvim",
     dependencies = { "nvim-tree/nvim-web-devicons" },
-    events = { "VeryLazy" },
+    event = "VeryLazy",
     keys = {
         { "<leader>e", "<cmd>Oil<cr>", { desc = "Open Oil File Manager" } },
     },
@@ -236,15 +242,10 @@ require("lazy").setup({
           enable = true,
           additional_vim_regex_highlighting = false,
         },
-        rainbow = {
-          enable = true,
-          disable = { "html" },
-          extended_mode = false,
-          max_file_lines = nil,
-        },
         incremental_selection = { enable = true },
         indent = { enable = false },
       },
+      main = "nvim-treesitter.config",
     },
     -- Telescope
 {
@@ -253,7 +254,6 @@ require("lazy").setup({
         "nvim-telescope/telescope-fzf-native.nvim",
         lazy = true,
         build = "make",
-        config = function() end,
     },
 
     {
@@ -266,7 +266,7 @@ require("lazy").setup({
         -- stylua: ignore
         keys = {
             { "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "Find Files" },
-            { "<leader>fF", "<cmd>Telescope find_files hidden=true no-ignore=true<cr>", desc = "Find Files (+hidden)", },
+            { "<leader>fF", "<cmd>Telescope find_files hidden=true no_ignore=true<cr>", desc = "Find Files (+hidden)", },
             { "<leader>fw", "<cmd>Telescope live_grep<cr>", desc = "Find Word" },
             { "<leader>fW", "<cmd>lua require('telescope.builtin').live_grep{ additional_args = function(args) return vim.list_extend(args, { '--hidden', '--no-ignore' }) end}<cr>", desc = "Find Word (+hidden)", },
             { "<leader>fb", "<cmd>Telescope current_buffer_fuzzy_find<cr>", desc = "Find Text in Current Buffer" },
@@ -571,12 +571,6 @@ vim.keymap.set({ "n", "v" }, "<leader>d", '"_d', { desc = "Delete without yankin
 vim.keymap.set("n", "<leader>bn", ":bnext<CR>", { desc = "Next buffer" })
 vim.keymap.set("n", "<leader>bp", ":bprevious<CR>", { desc = "Previous buffer" })
 
--- Better window navigation
-vim.keymap.set("n", "<C-h>", "<cmd>TmuxNavigateLeft<cr>", { desc = "Move to left window" })
-vim.keymap.set("n", "<C-j>", "<cmd>TmuxNavigateDown<cr>", { desc = "Move to bottom window" })
-vim.keymap.set("n", "<C-k>", "<cmd>TmuxNavigateUp<cr>", { desc = "Move to top window" })
-vim.keymap.set("n", "<C-l>", "<cmd>TmuxNavigateRight<cr>", { desc = "Move to right window" })
-
 -- Splitting & Resizing
 vim.keymap.set("n", "<leader>sv", ":vsplit<CR>", { desc = "Split window vertically" })
 vim.keymap.set("n", "<leader>sh", ":split<CR>", { desc = "Split window horizontally" })
@@ -622,22 +616,24 @@ vim.opt.maxmempattern = 20000
 -- USEFUL FUNCTIONS
 -- ============================================================================
 
--- WARN: This way of setting signs is deprecated
 -- Diagnostic signs
-vim.fn.sign_define(
-    "DiagnosticSignError",
-    { texthl = "DiagnosticSignError", text = "", numhl = "DiagnosticSignError" }
-)
-vim.fn.sign_define("DiagnosticSignWarn", { texthl = "DiagnosticSignWarn", text = "", numhl = "DiagnosticSignWarn" })
-vim.fn.sign_define("DiagnosticSignHint", { texthl = "DiagnosticSignHint", text = "", numhl = "DiagnosticSignHint" })
-vim.fn.sign_define("DiagnosticSignInfo", { texthl = "DiagnosticSignInfo", text = "", numhl = "DiagnosticSignInfo" })
+vim.diagnostic.config({
+    signs = {
+        text = {
+            [vim.diagnostic.severity.ERROR] = "",
+            [vim.diagnostic.severity.WARN] = "",
+            [vim.diagnostic.severity.HINT] = "",
+            [vim.diagnostic.severity.INFO] = "",
+        },
+    },
+})
 
 -- Copy Full File-Path
 vim.keymap.set("n", "<leader>pa", function()
     local path = vim.fn.expand("%:p")
     vim.fn.setreg("+", path)
     print("file:", path)
-end)
+end, { desc = "Copy full file path" })
 
 -- Basic autocommands
 local augroup = vim.api.nvim_create_augroup("UserConfig", {})
