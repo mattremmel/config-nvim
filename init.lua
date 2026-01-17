@@ -159,7 +159,7 @@ require("lazy").setup({
 			dependencies = { "nvim-tree/nvim-web-devicons" },
 			event = "VeryLazy",
 			keys = {
-				{ "<leader>e", "<cmd>Oil<cr>", { desc = "Open Oil File Manager" } },
+				{ "<leader>e", "<cmd>Oil<cr>", desc = "Open Oil File Manager" },
 			},
 			opts = {},
 		},
@@ -254,16 +254,13 @@ require("lazy").setup({
 		},
 		-- Telescope
 		{
-
-			{
-				"nvim-telescope/telescope-fzf-native.nvim",
-				lazy = true,
-				build = "make",
-			},
-
-			{
-				"nvim-telescope/telescope.nvim",
-				dependencies = {
+			"nvim-telescope/telescope-fzf-native.nvim",
+			lazy = true,
+			build = "make",
+		},
+		{
+			"nvim-telescope/telescope.nvim",
+			dependencies = {
 					"nvim-lua/plenary.nvim",
 					"nvim-telescope/telescope-fzf-native.nvim",
 				},
@@ -363,7 +360,6 @@ require("lazy").setup({
 					-- Load extension
 					telescope.load_extension("fzf")
 				end,
-			},
 		},
 		-- Trouble
 		{
@@ -455,7 +451,6 @@ require("lazy").setup({
 					-- Debuggers
 					"codelldb",
 				},
-				automatic_installation = true,
 			},
 			config = function(_, opts)
 				require("mason").setup(opts)
@@ -719,17 +714,77 @@ require("lazy").setup({
 			},
 			opts = {},
 		},
+		-- Completion (blink.cmp)
+		{
+			"saghen/blink.cmp",
+			dependencies = { "rafamadriz/friendly-snippets" },
+			version = "1.*",
+			event = "InsertEnter",
+			opts = {
+				keymap = { preset = "default" },
+				appearance = {
+					nerd_font_variant = "mono",
+				},
+				completion = {
+					documentation = {
+						auto_show = true,
+						auto_show_delay_ms = 200,
+					},
+				},
+				sources = {
+					default = { "lsp", "path", "snippets", "buffer" },
+				},
+				fuzzy = { implementation = "prefer_rust_with_warning" },
+			},
+		},
+		-- Which-key
+		{
+			"folke/which-key.nvim",
+			event = "VeryLazy",
+			opts = {
+				preset = "helix",
+			},
+			keys = {
+				{
+					"<leader>?",
+					function()
+						require("which-key").show({ global = false })
+					end,
+					desc = "Buffer Local Keymaps (which-key)",
+				},
+			},
+		},
+		-- Indent Blankline
+		{
+			"lukas-reineke/indent-blankline.nvim",
+			main = "ibl",
+			event = { "BufReadPre", "BufNewFile" },
+			opts = {
+				indent = {
+					char = "│",
+				},
+				scope = {
+					enabled = true,
+					show_start = false,
+					show_end = false,
+				},
+			},
+		},
 	},
 	-- Configure any other settings here. See the documentation for more details.
 	-- colorscheme that will be used when installing plugins.
 	install = { colorscheme = { "habamax" } },
 	-- automatically check for plugin updates
-	checker = { enabled = true },
+	checker = { enabled = false },
 })
 
 -- Colorscheme
 vim.o.background = "dark"
 vim.cmd("colorscheme nordfox")
+
+-- Subtle indent guides (set after colorscheme)
+vim.api.nvim_set_hl(0, "IblIndent", { fg = "#2e2e2e" })
+vim.api.nvim_set_hl(0, "IblScope", { fg = "#3e3e3e" })
 
 -- Basic settings
 vim.opt.number = true -- Line numbers
@@ -770,7 +825,6 @@ vim.opt.pumblend = 10 -- Popup menu transparency
 vim.opt.winblend = 0 -- Floating window transparency
 vim.opt.conceallevel = 0 -- Don't hide markup
 vim.opt.concealcursor = "" -- Don't hide cursor line markup
-vim.opt.lazyredraw = true -- Don't redraw during macros
 vim.opt.synmaxcol = 300 -- Syntax highlighting limit
 
 -- File handling
@@ -803,7 +857,7 @@ vim.opt.guicursor = "i-ci-ve:ver25"
 
 -- Folding settings
 vim.opt.foldmethod = "expr" -- Use expression for folding
-vim.wo.foldexpr = "nvim_treesitter#foldexpr()" -- Use treesitter for folding
+vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()" -- Use treesitter for folding
 vim.opt.foldlevel = 99 -- Start with all folds open
 
 -- Split behavior
