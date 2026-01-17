@@ -91,6 +91,19 @@ require("lazy").setup({
 			},
 		},
 
+		{
+			"folke/persistence.nvim",
+			event = "BufReadPre",
+			opts = {},
+			-- stylua: ignore
+			keys = {
+				{ "<leader>qs", function() require("persistence").load() end, desc = "Restore Session" },
+				{ "<leader>qS", function() require("persistence").select() end, desc = "Select Session" },
+				{ "<leader>ql", function() require("persistence").load({ last = true }) end, desc = "Restore Last Session" },
+				{ "<leader>qd", function() require("persistence").stop() end, desc = "Don't Save Current Session" },
+			},
+		},
+
 		-- ========================================================================
 		-- EDITOR ENHANCEMENTS
 		-- Basic editing improvements and visual aids
@@ -141,6 +154,28 @@ require("lazy").setup({
 					end,
 					desc = "Buffer Local Keymaps (which-key)",
 				},
+			},
+		},
+
+		{
+			"folke/flash.nvim",
+			event = "VeryLazy",
+			opts = {},
+			-- stylua: ignore
+			keys = {
+				{ "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
+				{ "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
+				{ "r", mode = "o", function() require("flash").remote() end, desc = "Remote Flash" },
+				{ "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
+				{ "<c-s>", mode = { "c" }, function() require("flash").toggle() end, desc = "Toggle Flash Search" },
+			},
+		},
+
+		{
+			"mbbill/undotree",
+			cmd = "UndotreeToggle",
+			keys = {
+				{ "<leader>u", "<cmd>UndotreeToggle<cr>", desc = "Toggle Undotree" },
 			},
 		},
 
@@ -218,6 +253,24 @@ require("lazy").setup({
 				{ "<C-k>", "<cmd>TmuxNavigateUp<cr>", desc = "Move to top window" },
 				{ "<C-l>", "<cmd>TmuxNavigateRight<cr>", desc = "Move to right window" },
 			},
+		},
+
+		{
+			"ThePrimeagen/harpoon",
+			branch = "harpoon2",
+			dependencies = { "nvim-lua/plenary.nvim" },
+			-- stylua: ignore
+			keys = {
+				{ "<leader>a", function() require("harpoon"):list():add() end, desc = "Harpoon Add File" },
+				{ "<leader>o", function() local harpoon = require("harpoon") harpoon.ui:toggle_quick_menu(harpoon:list()) end, desc = "Harpoon Menu" },
+				{ "<leader>1", function() require("harpoon"):list():select(1) end, desc = "Harpoon File 1" },
+				{ "<leader>2", function() require("harpoon"):list():select(2) end, desc = "Harpoon File 2" },
+				{ "<leader>3", function() require("harpoon"):list():select(3) end, desc = "Harpoon File 3" },
+				{ "<leader>4", function() require("harpoon"):list():select(4) end, desc = "Harpoon File 4" },
+			},
+			config = function()
+				require("harpoon"):setup()
+			end,
 		},
 
 		-- ========================================================================
@@ -379,6 +432,18 @@ require("lazy").setup({
 					end,
 					desc = "Previous TODO Comment",
 				},
+			},
+			opts = {},
+		},
+
+		{
+			"nvim-pack/nvim-spectre",
+			dependencies = { "nvim-lua/plenary.nvim" },
+			cmd = "Spectre",
+			keys = {
+				{ "<leader>sr", function() require("spectre").toggle() end, desc = "Search and Replace (Spectre)" },
+				{ "<leader>sw", function() require("spectre").open_visual({ select_word = true }) end, desc = "Search Current Word" },
+				{ "<leader>sp", function() require("spectre").open_file_search({ select_word = true }) end, desc = "Search in Current File" },
 			},
 			opts = {},
 		},
@@ -769,6 +834,113 @@ require("lazy").setup({
 		},
 
 		-- ========================================================================
+		-- DEBUGGING
+		-- Debug Adapter Protocol support
+		-- ========================================================================
+
+		{
+			"mfussenegger/nvim-dap",
+			dependencies = {
+				"rcarriga/nvim-dap-ui",
+				"nvim-neotest/nvim-nio",
+			},
+			-- stylua: ignore
+			keys = {
+				{ "<leader>db", function() require("dap").toggle_breakpoint() end, desc = "Toggle Breakpoint" },
+				{ "<leader>dB", function() require("dap").set_breakpoint(vim.fn.input("Breakpoint condition: ")) end, desc = "Conditional Breakpoint" },
+				{ "<leader>dc", function() require("dap").continue() end, desc = "Continue" },
+				{ "<leader>dC", function() require("dap").run_to_cursor() end, desc = "Run to Cursor" },
+				{ "<leader>di", function() require("dap").step_into() end, desc = "Step Into" },
+				{ "<leader>do", function() require("dap").step_over() end, desc = "Step Over" },
+				{ "<leader>dO", function() require("dap").step_out() end, desc = "Step Out" },
+				{ "<leader>dr", function() require("dap").repl.toggle() end, desc = "Toggle REPL" },
+				{ "<leader>dl", function() require("dap").run_last() end, desc = "Run Last" },
+				{ "<leader>dt", function() require("dap").terminate() end, desc = "Terminate" },
+				{ "<leader>du", function() require("dapui").toggle() end, desc = "Toggle DAP UI" },
+				{ "<leader>de", function() require("dapui").eval() end, desc = "Eval", mode = { "n", "v" } },
+			},
+			config = function()
+				local dap = require("dap")
+				local dapui = require("dapui")
+
+				dapui.setup()
+
+				-- Automatically open/close DAP UI
+				dap.listeners.after.event_initialized["dapui_config"] = function()
+					dapui.open()
+				end
+				dap.listeners.before.event_terminated["dapui_config"] = function()
+					dapui.close()
+				end
+				dap.listeners.before.event_exited["dapui_config"] = function()
+					dapui.close()
+				end
+
+				-- Configure codelldb for Rust/C/C++
+				dap.adapters.codelldb = {
+					type = "server",
+					port = "${port}",
+					executable = {
+						command = vim.fn.stdpath("data") .. "/mason/bin/codelldb",
+						args = { "--port", "${port}" },
+					},
+				}
+
+				dap.configurations.rust = {
+					{
+						name = "Launch",
+						type = "codelldb",
+						request = "launch",
+						program = function()
+							return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/target/debug/", "file")
+						end,
+						cwd = "${workspaceFolder}",
+						stopOnEntry = false,
+					},
+				}
+				dap.configurations.c = dap.configurations.rust
+				dap.configurations.cpp = dap.configurations.rust
+			end,
+		},
+
+		-- ========================================================================
+		-- TESTING
+		-- Test runner framework
+		-- ========================================================================
+
+		{
+			"nvim-neotest/neotest",
+			dependencies = {
+				"nvim-neotest/nvim-nio",
+				"nvim-lua/plenary.nvim",
+				"nvim-treesitter/nvim-treesitter",
+				"nvim-neotest/neotest-python",
+				"rouge8/neotest-rust",
+			},
+			-- stylua: ignore
+			keys = {
+				{ "<leader>Tt", function() require("neotest").run.run() end, desc = "Run Nearest Test" },
+				{ "<leader>Tf", function() require("neotest").run.run(vim.fn.expand("%")) end, desc = "Run File Tests" },
+				{ "<leader>Ta", function() require("neotest").run.run(vim.uv.cwd()) end, desc = "Run All Tests" },
+				{ "<leader>Ts", function() require("neotest").summary.toggle() end, desc = "Toggle Summary" },
+				{ "<leader>To", function() require("neotest").output.open({ enter = true, auto_close = true }) end, desc = "Show Output" },
+				{ "<leader>TO", function() require("neotest").output_panel.toggle() end, desc = "Toggle Output Panel" },
+				{ "<leader>TS", function() require("neotest").run.stop() end, desc = "Stop Test" },
+				{ "<leader>Tw", function() require("neotest").watch.toggle(vim.fn.expand("%")) end, desc = "Toggle Watch" },
+			},
+			config = function()
+				require("neotest").setup({
+					adapters = {
+						require("neotest-python")({
+							dap = { justMyCode = false },
+						}),
+						require("neotest-rust"),
+					},
+				})
+			end,
+		},
+
+		-- ========================================================================
 		-- GIT INTEGRATION
 		-- Version control tools and visualizations
 		-- ========================================================================
@@ -989,6 +1161,12 @@ vim.keymap.set("n", "<leader>pa", function()
 	print("file:", path)
 end, { desc = "Copy full file path" })
 
+-- Quick escape from insert mode
+vim.keymap.set("i", "jk", "<Esc>", { desc = "Exit insert mode" })
+
+-- Make file executable
+vim.keymap.set("n", "<leader>fx", "<cmd>!chmod +x %<CR>", { silent = true, desc = "Make file executable" })
+
 -- ============================================================================
 -- DIAGNOSTICS
 -- ============================================================================
@@ -1045,6 +1223,28 @@ vim.api.nvim_create_autocmd("VimResized", {
 	group = augroup,
 	callback = function()
 		vim.cmd("tabdo wincmd =")
+	end,
+})
+
+-- Auto-create parent directories when saving
+vim.api.nvim_create_autocmd("BufWritePre", {
+	group = augroup,
+	callback = function(event)
+		if event.match:match("^%w%w+:[\\/][\\/]") then
+			return
+		end
+		local file = vim.uv.fs_realpath(event.match) or event.match
+		vim.fn.mkdir(vim.fn.fnamemodify(file, ":p:h"), "p")
+	end,
+})
+
+-- Close some filetypes with just 'q'
+vim.api.nvim_create_autocmd("FileType", {
+	group = augroup,
+	pattern = { "help", "man", "qf", "checkhealth", "lspinfo", "spectre_panel" },
+	callback = function(event)
+		vim.bo[event.buf].buflisted = false
+		vim.keymap.set("n", "q", "<cmd>close<cr>", { buffer = event.buf, silent = true })
 	end,
 })
 
