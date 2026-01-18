@@ -82,6 +82,7 @@ require("lazy").setup({
 				{ "<leader>h",  function() Snacks.notifier.show_history() end, desc = "Notification History" },
 				{ "<leader>td", function() Snacks.terminal.toggle("lazydocker") end, desc = "Toggle Terminal" },
 				{ "<leader>tg", function() Snacks.lazygit() end, desc = "Lazygit" },
+				{ "<C-\\>", function() Snacks.terminal.toggle("claude") end, mode = { "n", "t" }, desc = "Toggle Claude Terminal" },
 				{ "<leader>gb", function() Snacks.git.blame_line() end, desc = "Git Blame Line" },
 				{ "<leader>gf", function() Snacks.lazygit.log_file() end, desc = "Lazygit Current File History" },
 				{ "<leader>un", function() Snacks.notifier.hide() end, desc = "Dismiss All Notifications" },
@@ -459,9 +460,27 @@ require("lazy").setup({
 			dependencies = { "nvim-lua/plenary.nvim" },
 			cmd = "Spectre",
 			keys = {
-				{ "<leader>sr", function() require("spectre").toggle() end, desc = "Search and Replace (Spectre)" },
-				{ "<leader>sw", function() require("spectre").open_visual({ select_word = true }) end, desc = "Search Current Word" },
-				{ "<leader>sp", function() require("spectre").open_file_search({ select_word = true }) end, desc = "Search in Current File" },
+				{
+					"<leader>sr",
+					function()
+						require("spectre").toggle()
+					end,
+					desc = "Search and Replace (Spectre)",
+				},
+				{
+					"<leader>sw",
+					function()
+						require("spectre").open_visual({ select_word = true })
+					end,
+					desc = "Search Current Word",
+				},
+				{
+					"<leader>sp",
+					function()
+						require("spectre").open_file_search({ select_word = true })
+					end,
+					desc = "Search in Current File",
+				},
 			},
 			opts = {},
 		},
