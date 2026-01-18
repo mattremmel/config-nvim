@@ -160,7 +160,25 @@ require("lazy").setup({
 		{
 			"folke/flash.nvim",
 			event = "VeryLazy",
-			opts = {},
+			opts = {
+				highlight = {
+					backdrop = true,
+					groups = {
+						match = "FlashMatch",
+						current = "FlashCurrent",
+						backdrop = "FlashBackdrop",
+						label = "FlashLabel",
+					},
+				},
+			},
+			config = function(_, opts)
+				require("flash").setup(opts)
+				-- Nordfox-coordinated flash highlights
+				vim.api.nvim_set_hl(0, "FlashBackdrop", { fg = "#4b5668" })
+				vim.api.nvim_set_hl(0, "FlashMatch", { bg = "#3b4252", fg = "#88c0d0" })
+				vim.api.nvim_set_hl(0, "FlashCurrent", { bg = "#4c566a", fg = "#eceff4", bold = true })
+				vim.api.nvim_set_hl(0, "FlashLabel", { bg = "#bf616a", fg = "#eceff4", bold = true })
+			end,
 			-- stylua: ignore
 			keys = {
 				{ "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
