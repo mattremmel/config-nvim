@@ -773,6 +773,11 @@ require("lazy").setup({
 				},
 			},
 			opts = {
+				formatters = {
+					rustfmt = {
+						prepend_args = { "+nightly" },
+					},
+				},
 				formatters_by_ft = {
 					lua = { "stylua" },
 					python = { "isort", "black" },
